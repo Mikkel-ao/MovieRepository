@@ -21,14 +21,12 @@ public class Movie {
     private Double rating;
     private Double popularity;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Director director;
 
-    @ManyToMany
-    @JoinTable(name = "movie_actor")
+    @ManyToMany(cascade = CascadeType.ALL)
     private Set<Actor> actors;
 
-    @ManyToMany
-    @JoinTable(name = "movie_genre")
+    @ManyToMany(cascade = CascadeType.ALL)
     private Set<Genre> genres;
 }
