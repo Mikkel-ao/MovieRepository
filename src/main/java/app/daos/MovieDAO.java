@@ -1,5 +1,6 @@
 package app.daos;
 
+import app.entities.Genre;
 import app.entities.Movie;
 import app.exceptions.ApiException;
 import jakarta.persistence.EntityManager;
@@ -68,6 +69,17 @@ public class MovieDAO implements IDAO<Movie, Integer> {
             return movie != null;
         } catch (Exception e) {
             throw new ApiException(500, "Error deleting movie: " + e.getMessage());
+        }
+    }
+    public List<Movie> getMoviesByGenre(String genreName) {
+        try (EntityManager em = emf.createEntityManager()) {
+            return em.createQuery("SELECT DISTINCT m FROM Movie m JOIN m.genres g WHERE g.name = :genreName",
+                    Movie.class
+            )
+                    .setParameter("genreName", genreName)
+                    .getResultList();
+        }catch (Exception e) {
+            throw new ApiException(500, "Error getting movies by genre: " + e.getMessage());
         }
     }
 }

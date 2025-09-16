@@ -1,6 +1,7 @@
 package app;
 
 import app.configs.HibernateConfig;
+import app.daos.GenreDAO;
 import app.daos.MovieDAO;
 import app.dtos.MovieDetailsDTO;
 import app.entities.*;
@@ -14,6 +15,7 @@ public class Main {
         EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
         EntityMapper mapper = new EntityMapper();
         MovieDAO movieDAO = new MovieDAO(emf);
+        GenreDAO genreDAO = new GenreDAO(emf);
 
         MovieService movieService = new MovieService();
         List<MovieDetailsDTO> movieDetails = movieService.getDanishMoviesLast5Years();
@@ -39,16 +41,15 @@ public class Main {
             }
 
             if (dto.getGenres() != null) {
-                var genres = mapper.convertToGenre(dto.getGenres());
-                for (Genre genre : genres) {
+                for (var genreDTO : dto.getGenres()) {
+                    Genre genre = genreDAO.findOrCreateGenre(genreDTO.getName());
                     movie.addGenre(genre);
                 }
             }
-
             movieDAO.create(movie);
-
             System.out.println("Persisted movie: " + movie.getTitle());
         }
+        List<Mov>
 
         emf.close();
         System.out.println("All movies persisted!");

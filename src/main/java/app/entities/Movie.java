@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -23,24 +24,27 @@ public class Movie {
     private Double rating;
     private Double popularity;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "director_id")
+    @ToString.Exclude
     private Director director;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL,  fetch = FetchType.EAGER)
     @JoinTable(
             name = "movie_actor",
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "actor_id")
     )
+    @ToString.Exclude
     private Set<Actor> actors = new HashSet<>();
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "movie_genre",
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
+    @ToString.Exclude
     private Set<Genre> genres = new HashSet<>();
 
     // --- Helper methods ---
@@ -54,7 +58,7 @@ public class Movie {
     public void addGenre(Genre genre) {
         if (genre != null) {
             genres.add(genre);
-            genre.getMovies().add(this);
+            //genre.getMovies().add(this);
         }
     }
 
@@ -63,5 +67,16 @@ public class Movie {
         if (director != null) {
             director.getMovies().add(this);
         }
+    }
+    @Override
+    public String toString() {
+        return "Movie{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", releaseDate=" + releaseDate +
+                ", rating=" + rating +
+                ", popularity=" + popularity +
+                ", genres=" + genres.stream().map(Genre::getName).toList() +
+                '}';
     }
 }

@@ -69,4 +69,25 @@ public class GenreDAO implements IDAO<Genre, Integer> {
             throw new ApiException(500, "Error deleting genre: " + e.getMessage());
         }
     }
+    public Genre findOrCreateGenre(String name) {
+        try (EntityManager em = emf.createEntityManager()) {
+            em.getTransaction().begin();
+
+            Genre genre = em.createQuery(
+                            "SELECT g FROM Genre g WHERE g.name = :name", Genre.class)
+                    .setParameter("name", name)
+                    .getResultStream()
+                    .findFirst()
+                    .orElse(null);
+
+            if (genre == null) {
+                genre = new Genre();
+                genre.setName(name);
+                em.persist(genre);
+            }
+
+            em.getTransaction().commit();
+            return genre;
+        }
+    }
 }

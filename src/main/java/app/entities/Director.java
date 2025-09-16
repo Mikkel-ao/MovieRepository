@@ -2,6 +2,7 @@ package app.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +16,7 @@ public class Director {
 
     private String name;
 
-    @OneToMany(mappedBy = "director")
+    @OneToMany(mappedBy = "director",fetch = FetchType.EAGER)
+    @ToString.Exclude
     private Set<Movie> movies = new HashSet<>();
 }
