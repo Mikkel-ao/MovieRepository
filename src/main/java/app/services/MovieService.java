@@ -24,6 +24,7 @@ public class MovieService {
     private final ObjectMapper objectMapper;
     private final HttpClient client;
     private final String apiKey;
+    int cores = Runtime.getRuntime().availableProcessors();
     private final ExecutorService executor;
 
     public MovieService() {
@@ -33,7 +34,7 @@ public class MovieService {
         if (apiKey == null) {
             throw new RuntimeException("API_KEY not found in environment variables!");
         }
-        this.executor = Executors.newFixedThreadPool(13);
+        this.executor = Executors.newFixedThreadPool(cores);
     }
 
     public List<MovieDetailsDTO> getDanishMoviesLast5Years() {
