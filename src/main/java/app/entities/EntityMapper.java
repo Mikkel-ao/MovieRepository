@@ -1,11 +1,16 @@
 package app.entities;
 
+import app.dtos.ActorDTO;
+import app.dtos.DirectorDTO;
+import app.dtos.GenreDTO;
+import app.dtos.MovieDetailsDTO;
+
+import java.time.LocalDate;
 import java.util.List;
 
 
 public class EntityMapper {
-    /*
-    public List<Actor> convertToActor(List<Dto> dtoList) {
+    public List<Actor> convertToActor(List<ActorDTO> dtoList) {
         return dtoList.stream()
                 .map(dto -> {
                     Actor actor = new Actor();
@@ -16,7 +21,7 @@ public class EntityMapper {
                 .toList();
     }
 
-    public List<Director> convertToDirector(List<Dto> dtoList) {
+    public List<Director> convertToDirector(List<DirectorDTO> dtoList) {
         return dtoList.stream()
                 .map(dto -> {
                     Director director = new Director();
@@ -27,32 +32,30 @@ public class EntityMapper {
                 .toList();
     }
 
-    public List<Genre> convertToGenre(List<Dto> dtoList) {
+    public List<Genre> convertToGenre(List<GenreDTO> dtoList) {
         return dtoList.stream()
                 .map(dto -> {
                     Genre genre = new Genre();
-                    genre.setId(dto.getGenreId());
-                    genre.setName(dto.getGenreName());
+                    genre.setId(dto.getId());
+                    genre.setName(dto.getName());
                     return genre;
                 })
                 .toList();
     }
 
-    public List<Movie> convertToMovie(List<Dto> dtoList) {
+    public List<Movie> convertToMovie(List<MovieDetailsDTO> dtoList) {
         return dtoList.stream()
                 .map(dto -> {
                     Movie movie = new Movie();
-                    movie.setId(dto.getMovieId());
-                    movie.setTitle(dto.getMovieTitle());
-                    movie.setReleaseDate(dto.getReleaseDate());
+                    movie.setId(dto.getId());
+                    movie.setTitle(dto.getTitle());
+                    movie.setReleaseDate(dto.getLocalReleaseDate());
                     movie.setRating(dto.getRating());
                     movie.setPopularity(dto.getPopularity());
                     return movie;
                 })
                 .toList();
     }
-
-     */
 }
 
 

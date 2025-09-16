@@ -71,7 +71,7 @@ public class MovieService {
                             // Thread.sleep(250); // throttle to avoid rate limits
                         }
                         page++;
-                        if (page > 3) morePages = false; // TMDB page limit
+                        if (page > 50) morePages = false; // TMDB page limit
                     } else {
                         morePages = false;
                     }
