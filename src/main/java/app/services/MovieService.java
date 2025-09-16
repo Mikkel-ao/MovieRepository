@@ -72,7 +72,7 @@ public class MovieService {
                             }
                         }
                         page++;
-                        if (page > 100) morePages = false; // TMDB page limit
+                        if (page > 10) morePages = false; // TMDB page limit
                     } else {
                         morePages = false;
                     }

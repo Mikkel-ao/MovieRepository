@@ -3,6 +3,7 @@ package app.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -15,5 +16,5 @@ public class Actor {
     private String name;
 
     @ManyToMany(mappedBy = "actors")
-    private Set<Movie> movies;
+    private Set<Movie> movies = new HashSet<>();
 }

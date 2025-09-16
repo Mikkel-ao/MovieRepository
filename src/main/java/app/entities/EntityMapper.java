@@ -14,7 +14,6 @@ public class EntityMapper {
         return dtoList.stream()
                 .map(dto -> {
                     Actor actor = new Actor();
-                    actor.setId(dto.getId());
                     actor.setName(dto.getName());
                     return actor;
                 })
@@ -25,7 +24,6 @@ public class EntityMapper {
         return dtoList.stream()
                 .map(dto -> {
                     Director director = new Director();
-                    director.setId(dto.getId());
                     director.setName(dto.getName());
                     return director;
                 })
@@ -36,7 +34,6 @@ public class EntityMapper {
         return dtoList.stream()
                 .map(dto -> {
                     Genre genre = new Genre();
-                    genre.setId(dto.getId());
                     genre.setName(dto.getName());
                     return genre;
                 })
@@ -47,7 +44,6 @@ public class EntityMapper {
         return dtoList.stream()
                 .map(dto -> {
                     Movie movie = new Movie();
-                    movie.setId(dto.getId());
                     movie.setTitle(dto.getTitle());
                     movie.setReleaseDate(dto.getLocalReleaseDate());
                     movie.setRating(dto.getRating());
