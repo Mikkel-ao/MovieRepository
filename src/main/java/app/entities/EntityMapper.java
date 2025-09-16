@@ -2,7 +2,9 @@ package app.entities;
 
 import java.util.List;
 
+
 public class EntityMapper {
+    /*
     public List<Actor> convertToActor(List<Dto> dtoList) {
         return dtoList.stream()
                 .map(dto -> {
@@ -49,4 +51,8 @@ public class EntityMapper {
                 })
                 .toList();
     }
+
+     */
 }
+
+
