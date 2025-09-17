@@ -1,35 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="movie_repository@localhost" uuid="426047d9-9cdb-4111-8ad4-be08e2b0418a">
+    <data-source source="LOCAL" name="SP_1_movie_repository@localhost" uuid="21ce4473-eaa2-413a-90f5-13f45d648e2d">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/movie_repository</jdbc-url>
-      <jdbc-additional-properties>
-        <property name="com.intellij.clouds.kubernetes.db.host.port" />
-        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
-        <property name="com.intellij.clouds.kubernetes.db.container.port" />
-      </jdbc-additional-properties>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="postgres@localhost" uuid="5baa0f38-9354-44a7-900a-0db7bd7c0cf5">
-      <driver-ref>postgresql</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/postgres</jdbc-url>
-      <jdbc-additional-properties>
-        <property name="com.intellij.clouds.kubernetes.db.host.port" />
-        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
-        <property name="com.intellij.clouds.kubernetes.db.container.port" />
-      </jdbc-additional-properties>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="postgres@localhost [2]" uuid="54fc7bc8-6bff-4ea6-ad82-0b8f78bf47f6">
-      <driver-ref>postgresql</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/postgres</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5432/SP_1_movie_repository</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
