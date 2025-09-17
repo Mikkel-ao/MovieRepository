@@ -49,7 +49,6 @@ public class Main {
             movieDAO.create(movie);
             System.out.println("Persisted movie: " + movie.getTitle());
         }
-        List<Mov>
 
         emf.close();
         System.out.println("All movies persisted!");
