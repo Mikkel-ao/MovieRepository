@@ -55,11 +55,17 @@ class MovieDAOTest {
 
     @Test
     void create() {
+        // Arrange
+        
         Movie newMovie = new Movie();
         newMovie.setTitle("New Movie");
+
         // Act
+
         Movie created = movieDAO.create(newMovie);
+
         // Assert
+
         assertNotNull(created.getId());
         assertEquals("New Movie", created.getTitle());
 
