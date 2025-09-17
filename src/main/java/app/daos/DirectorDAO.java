@@ -1,5 +1,6 @@
 package app.daos;
 
+import app.entities.Actor;
 import app.entities.Director;
 import app.exceptions.ApiException;
 import jakarta.persistence.EntityManager;
@@ -70,4 +71,12 @@ public class DirectorDAO implements IDAO<Director, Integer> {
             throw new ApiException(500, "Error deleting director: " + e.getMessage());
         }
     }
+    public List<Director> getDirectorByMovieId(int movieId) {
+        try (EntityManager em = emf.createEntityManager()) {
+            return em.createQuery("SELECT d FROM Movie m JOIN m.director d WHERE m.id = :movieId", Director.class)
+                    .setParameter("movieId", movieId)
+                    .getResultList();
+        }
+    }
+
 }

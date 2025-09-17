@@ -15,6 +15,6 @@ public class Actor {
 
     private String name;
 
-    @ManyToMany(mappedBy = "actors")
+    @ManyToMany(mappedBy = "actors",fetch = FetchType.EAGER)
     private Set<Movie> movies = new HashSet<>();
 }

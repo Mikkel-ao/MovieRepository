@@ -5,6 +5,8 @@ import app.entities.Movie;
 import app.exceptions.ApiException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Query;
+
 import java.util.List;
 
 public class MovieDAO implements IDAO<Movie, Integer> {
@@ -80,6 +82,42 @@ public class MovieDAO implements IDAO<Movie, Integer> {
                     .getResultList();
         }catch (Exception e) {
             throw new ApiException(500, "Error getting movies by genre: " + e.getMessage());
+        }
+    }
+    public List<Movie> getMoviesByTitle(String movieTitle) {
+        try (EntityManager em = emf.createEntityManager()) {
+            return em.createQuery("SELECT m FROM Movie m WHERE LOWER(m.title) LIKE :movieTitle",Movie.class)
+                    .setParameter("movieTitle","%" + movieTitle.toLowerCase() + "%")
+                    .getResultList();
+        }catch (Exception e) {
+            throw new ApiException(500, "Error getting movies by genre: " + e.getMessage());
+        }
+    }
+    public double getTotalRatingForAllMovies() {
+        try (EntityManager em = emf.createEntityManager()) {
+            return em.createQuery("SELECT AVG(m.rating) FROM Movie m", Double.class)
+                    .getSingleResult();
+        }
+    }
+    public List<Movie> getHighestRatedMovies() {
+        try (EntityManager em = emf.createEntityManager()) {
+            return em.createQuery("SELECT m FROM Movie m ORDER BY m.rating DESC", Movie.class)
+                    .setMaxResults(10)
+                    .getResultList();
+        }
+    }
+    public List<Movie> getLowestRatedMovies() {
+        try (EntityManager em = emf.createEntityManager()) {
+            return em.createQuery("SELECT m FROM Movie m ORDER BY m.rating ASC", Movie.class)
+                    .setMaxResults(10)
+                    .getResultList();
+        }
+    }
+    public List<Movie> getMostPopularMovies() {
+        try (EntityManager em = emf.createEntityManager()) {
+            return em.createQuery("SELECT m FROM Movie m ORDER BY m.popularity DESC", Movie.class)
+                    .setMaxResults(10)
+                    .getResultList();
         }
     }
 }
