@@ -1,10 +1,10 @@
 package app.daos;
 
 import app.entities.Actor;
+import app.entities.Movie;
 import app.exceptions.ApiException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.TypedQuery;
 
 import java.util.List;
 
@@ -63,16 +63,22 @@ public class ActorDAO implements IDAO<Actor, Integer> {
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
             Actor actor = em.find(Actor.class, id);
-            if (actor != null) {
-                em.remove(actor);
+            if (actor == null) return false;
+
+            // Remove the actor from all movies first to avoid issue with the ManyToMany relation
+            for (Movie movie : actor.getMovies()) {
+                movie.getActors().remove(actor);
             }
+
+            em.remove(actor);
             em.getTransaction().commit();
-            return actor != null;
+            return true;
         } catch (Exception e) {
             throw new ApiException(500, "Error deleting actor: " + e.getMessage());
         }
     }
-    public List<Actor> getActorByMovieId(int movieId) {
+
+    public List<Actor> getActorsByMovieId(int movieId) {
         try (EntityManager em = emf.createEntityManager()) {
             return em.createQuery("SELECT a FROM Movie m JOIN m.actors a WHERE m.id = :movieId", Actor.class)
                     .setParameter("movieId", movieId)

@@ -1,6 +1,7 @@
 package app.daos;
 
 import app.entities.Genre;
+import app.entities.Movie;
 import app.exceptions.ApiException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -60,11 +61,17 @@ public class GenreDAO implements IDAO<Genre, Integer> {
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
             Genre genre = em.find(Genre.class, id);
-            if (genre != null) {
-                em.remove(genre);
+            if (genre == null) return false;
+
+            // Remove the genre from all movies first to avoid issue with the ManyToMany relation
+            for (Movie movie : genre.getMovies()) {
+                movie.getGenres().remove(genre);
             }
+
+            em.remove(genre);
+
             em.getTransaction().commit();
-            return genre != null;
+            return true;
         } catch (Exception e) {
             throw new ApiException(500, "Error deleting genre: " + e.getMessage());
         }

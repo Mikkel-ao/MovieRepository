@@ -1,17 +1,9 @@
 package app;
 
 import app.configs.HibernateConfig;
-import app.daos.ActorDAO;
-import app.daos.DirectorDAO;
-import app.daos.GenreDAO;
-import app.daos.MovieDAO;
-import app.dtos.MovieDetailsDTO;
-import app.entities.*;
-import app.services.MovieService;
+
 import app.services.TaskManagerService;
 import jakarta.persistence.EntityManagerFactory;
-
-import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -27,7 +19,7 @@ public class Main {
             taskManagerService.getAllMovies();
 
             // Task 3:
-            taskManagerService.getDirectorsAndActors(7);
+            taskManagerService.getDirectorAndActors(7);
 
             // Task 4
             taskManagerService.getMoviesByGenre("Drama");

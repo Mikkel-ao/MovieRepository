@@ -47,7 +47,6 @@ public class Movie {
     @ToString.Exclude
     private Set<Genre> genres = new HashSet<>();
 
-    // --- Helper methods ---
     public void addActor(Actor actor) {
         if (actor != null) {
             actors.add(actor);

@@ -74,12 +74,12 @@ public class TaskManagerService {
         allMovies.forEach(System.out::println);
     }
 
-    public void getDirectorsAndActors(int movieId) {
-        List<Actor> allActorsByMovieId = actorDAO.getActorByMovieId(movieId);
-        List<Director> allDirectorsByMovieId = directorDAO.getDirectorByMovieId(movieId);
+    public void getDirectorAndActors(int movieId) {
+        List<Actor> allActorsByMovieId = actorDAO.getActorsByMovieId(movieId);
+        Director allDirectorsByMovieId = directorDAO.getDirectorByMovieId(movieId);
         List<Object> allDirectorsAndActors = new ArrayList<>();
         allDirectorsAndActors.addAll(allActorsByMovieId);
-        allDirectorsAndActors.addAll(allDirectorsByMovieId);
+        allDirectorsAndActors.add(allDirectorsByMovieId);
         allDirectorsAndActors.forEach(System.out::println);
     }
 

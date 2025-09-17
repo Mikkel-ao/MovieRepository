@@ -2,6 +2,7 @@ package app.daos;
 
 import app.entities.Actor;
 import app.entities.Director;
+import app.entities.Movie;
 import app.exceptions.ApiException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -61,21 +62,28 @@ public class DirectorDAO implements IDAO<Director, Integer> {
     public boolean delete(Integer id) {
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
+
             Director director = em.find(Director.class, id);
-            if (director != null) {
-                em.remove(director);
+            if (director == null) return false;
+
+            // Remove director reference from movies to avoid foreign key / relations issue
+            for (Movie movie : director.getMovies()) {
+                movie.setDirector(null); // Director should be set as null to detach from movie before deleting
             }
+            em.remove(director); // Now that it is null, delete
+
             em.getTransaction().commit();
-            return director != null;
+            return true;
         } catch (Exception e) {
             throw new ApiException(500, "Error deleting director: " + e.getMessage());
         }
     }
-    public List<Director> getDirectorByMovieId(int movieId) {
+
+    public Director getDirectorByMovieId(int movieId) {
         try (EntityManager em = emf.createEntityManager()) {
             return em.createQuery("SELECT d FROM Movie m JOIN m.director d WHERE m.id = :movieId", Director.class)
                     .setParameter("movieId", movieId)
-                    .getResultList();
+                    .getSingleResult();
         }
     }
 
