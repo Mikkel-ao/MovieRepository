@@ -56,7 +56,7 @@ class MovieDAOTest {
     @Test
     void create() {
         // Arrange
-        
+
         Movie newMovie = new Movie();
         newMovie.setTitle("New Movie");
 
