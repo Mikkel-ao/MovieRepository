@@ -47,7 +47,18 @@ public class MovieService {
 
         while (morePages) {
             try {
-                String url = DISCOVER_URL + "?api_key=" + apiKey + "&language=da-DK" + "&region=DK" + "&with_origin_country=DK" + "&primary_release_date.gte=" + fiveYearsAgo + "&primary_release_date.lte=" + today + "&sort_by=primary_release_date.desc" + "&page=" + page;
+                String url = DISCOVER_URL + "?api_key=" +
+                        apiKey +
+                        "&language=da-DK" +
+                        "&region=DK" +
+                        "&with_origin_country=DK" +
+                        "&primary_release_date.gte=" +
+                        fiveYearsAgo +
+                        "&primary_release_date.lte=" +
+                        today +
+                        "&sort_by=primary_release_date.desc" +
+                        "&page=" +
+                        page;
 
 
                 HttpRequest request = HttpRequest.newBuilder().uri(new URI(url)).GET().build();

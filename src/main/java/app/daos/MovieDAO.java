@@ -1,5 +1,6 @@
 package app.daos;
 
+import app.entities.Director;
 import app.entities.Movie;
 import app.exceptions.ApiException;
 import jakarta.persistence.EntityManager;
@@ -7,143 +8,79 @@ import jakarta.persistence.EntityManagerFactory;
 
 import java.util.List;
 
-public class MovieDAO implements IDAO<Movie, Integer> {
-    private final EntityManagerFactory emf;
+public class MovieDAO implements IDAO<Movie, Integer>{
 
-    public MovieDAO(EntityManagerFactory emf) {
-        this.emf = emf;
+    public Movie create(Movie movie, EntityManager em) {
+        em.persist(movie);
+        return movie;
     }
 
-    @Override
-    public Movie create(Movie movie) {
-        try (EntityManager em = emf.createEntityManager()) {
-            em.getTransaction().begin();
-            em.persist(movie);
-            em.getTransaction().commit();
-            return movie;
-        } catch (Exception e) {
-            throw new ApiException(500, "Error creating movie: " + e.getMessage());
-        }
+    public Movie getById(Integer id, EntityManager em) {
+        return em.find(Movie.class, id);
     }
 
-    @Override
-    public List<Movie> getAll() {
-        try (EntityManager em = emf.createEntityManager()) {
-            return em.createQuery("SELECT m FROM Movie m", Movie.class)
-                    .getResultList();
-        } catch (Exception e) {
-            throw new ApiException(500, "Error finding movies: " + e.getMessage());
-        }
+    public List<Movie> getAll(EntityManager em) {
+        return em.createQuery("SELECT m FROM Movie m", Movie.class)
+                .getResultList();
     }
 
-    @Override
-    public Movie getById(Integer id) {
-        try (EntityManager em = emf.createEntityManager()) {
-            return em.find(Movie.class, id);
-        } catch (Exception e) {
-            throw new ApiException(500, "Error getting movie: " + e.getMessage());
-        }
+    public Movie update(Movie movie, EntityManager em) {
+        return em.merge(movie);
     }
 
-    @Override
-    public Movie update(Movie movie) {
-        try (EntityManager em = emf.createEntityManager()) {
-            em.getTransaction().begin();
-            Movie updated = em.merge(movie);
-            em.getTransaction().commit();
-            return updated;
-        } catch (Exception e) {
-            throw new ApiException(500, "Error updating movie: " + e.getMessage());
-        }
+    public boolean delete(Integer id, EntityManager em) {
+        Movie movie = em.find(Movie.class, id);
+        if (movie == null) return false;
+
+        em.remove(movie);
+        return true;
     }
 
-    @Override
-    public boolean delete(Integer id) {
-        try (EntityManager em = emf.createEntityManager()) {
-            em.getTransaction().begin();
-            Movie movie = em.find(Movie.class, id);
-            if (movie != null) {
-                em.remove(movie);
-            }
-            em.getTransaction().commit();
-            return movie != null;
-        } catch (Exception e) {
-            throw new ApiException(500, "Error deleting movie: " + e.getMessage());
-        }
+    public double getTotalRatingForAllMovies(EntityManager em) {
+        return em.createQuery("SELECT AVG(m.rating) FROM Movie m WHERE m.rating > 0", Double.class)
+                .getSingleResult();
     }
 
-    public List<Movie> getMoviesByGenre(String genreName) {
-        try (EntityManager em = emf.createEntityManager()) {
+    public List<Movie> getHighestRatedMovies(EntityManager em) {
+        return em.createQuery("SELECT m FROM Movie m ORDER BY m.rating DESC", Movie.class)
+                .setMaxResults(10)
+                .getResultList();
+    }
+
+    public List<Movie> getLowestRatedMovies(EntityManager em) {
+        return em.createQuery("SELECT m FROM Movie m ORDER BY m.rating ASC", Movie.class)
+                .setMaxResults(10)
+                .getResultList();
+    }
+
+    public List<Movie> getMostPopularMovies(EntityManager em) {
+        return em.createQuery("SELECT m FROM Movie m ORDER BY m.popularity DESC", Movie.class)
+                .setMaxResults(10)
+                .getResultList();
+    }
+
+    public List<Movie> getAllMoviesByActor(String actorName, EntityManager em) {
+        return em.createQuery("SELECT m FROM Movie m JOIN m.actors a WHERE LOWER(a.name) LIKE :actorName", Movie.class)
+                .setParameter("actorName", "%" + actorName.toLowerCase() + "%")
+                .getResultList();
+    }
+
+    public List<Movie> getAllMoviesByDirector(String directorName, EntityManager em) {
+        return em.createQuery("SELECT m FROM Movie m JOIN m.director d WHERE LOWER(d.name) LIKE :directorName", Movie.class)
+                .setParameter("directorName", "%" + directorName.toLowerCase() + "%")
+                .getResultList();
+    }
+
+    public List<Movie> getMoviesByGenre(String genreName, EntityManager em) {
             return em.createQuery("SELECT DISTINCT m FROM Movie m JOIN m.genres g WHERE g.name = :genreName",
                             Movie.class
                     )
                     .setParameter("genreName", genreName)
                     .getResultList();
-        } catch (Exception e) {
-            throw new ApiException(500, "Error getting movies by genre: " + e.getMessage());
-        }
     }
-
-    public List<Movie> getMoviesByTitle(String movieTitle) {
-        try (EntityManager em = emf.createEntityManager()) {
+    public List<Movie> getMoviesByTitle(String movieTitle, EntityManager em) {
             return em.createQuery("SELECT m FROM Movie m WHERE LOWER(m.title) LIKE :movieTitle", Movie.class)
                     .setParameter("movieTitle", "%" + movieTitle.toLowerCase() + "%")
                     .getResultList();
-        } catch (Exception e) {
-            throw new ApiException(500, "Error getting movies by genre: " + e.getMessage());
-        }
     }
-
-    public double getTotalRatingForAllMovies() {
-        try (EntityManager em = emf.createEntityManager()) {
-            return em.createQuery("SELECT AVG(m.rating) FROM Movie m", Double.class)
-                    .getSingleResult();
-        }
-    }
-
-    public List<Movie> getHighestRatedMovies() {
-        try (EntityManager em = emf.createEntityManager()) {
-            return em.createQuery("SELECT m FROM Movie m ORDER BY m.rating DESC", Movie.class)
-                    .setMaxResults(10)
-                    .getResultList();
-        }
-    }
-
-    public List<Movie> getLowestRatedMovies() {
-        try (EntityManager em = emf.createEntityManager()) {
-            return em.createQuery("SELECT m FROM Movie m ORDER BY m.rating ASC", Movie.class)
-                    .setMaxResults(10)
-                    .getResultList();
-        }
-    }
-
-    public List<Movie> getMostPopularMovies() {
-        try (EntityManager em = emf.createEntityManager()) {
-            return em.createQuery("SELECT m FROM Movie m ORDER BY m.popularity DESC", Movie.class)
-                    .setMaxResults(10)
-                    .getResultList();
-        }
-    }
-
-    public List<Movie> getAllMoviesByActor(String actorName) {
-        try (EntityManager em = emf.createEntityManager()) {
-            return em.createQuery("SELECT m FROM Movie m JOIN m.actors a WHERE LOWER(a.name) LIKE :actorName", Movie.class)
-                    .setParameter("actorName", "%" + actorName.toLowerCase() + "%")
-                    .getResultList();
-        } catch (Exception e) {
-            throw new ApiException(500, "Error getting actor by movie: " + e.getMessage());
-        }
-    }
-
-    public List<Movie> getAllMoviesByDirector(String directorName) {
-        try (EntityManager em = emf.createEntityManager()) {
-            return em.createQuery("SELECT m FROM Movie m JOIN m.director d WHERE LOWER(d.name) LIKE :directorName", Movie.class)
-                    .setParameter("directorName", "%" + directorName.toLowerCase() + "%")
-                    .getResultList();
-        } catch (Exception e) {
-            throw new ApiException(500, "Error getting actor by movie: " + e.getMessage());
-        }
-    }
-
-
 }

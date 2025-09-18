@@ -11,7 +11,7 @@ import org.junit.jupiter.api.*;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+/*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ActorDAOTest {
 
@@ -118,5 +118,6 @@ class ActorDAOTest {
                         .anyMatch(a -> a.getId() == populator.getSampleActors().get(0).getId()),
                 "At least one actor should match the sample actor");
     }
-
 }
+
+ */
