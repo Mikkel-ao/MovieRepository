@@ -5,7 +5,6 @@ import app.daos.ActorDAO;
 import app.daos.DirectorDAO;
 import app.daos.GenreDAO;
 import app.daos.MovieDAO;
-import app.dtos.DirectorDTO;
 import app.dtos.MovieDetailsDTO;
 import app.entities.*;
 import app.exceptions.ApiException;
@@ -20,7 +19,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskManagerService {
-
     private final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
     MovieDAO movieDAO = new MovieDAO();
@@ -31,9 +29,11 @@ public class TaskManagerService {
     MovieService movieService = new MovieService();
     EntityMapper entityMapper = new EntityMapper();
 
-    // ----------------- TRANSACTIONAL METHOD -----------------
+
     public void fetchAllAndStoreMovies() {
         EntityManager em = emf.createEntityManager();
+        int persistedCount = 0;
+
         try {
             em.getTransaction().begin();
 
@@ -58,7 +58,7 @@ public class TaskManagerService {
                 if (dto.getCredits() != null && dto.getCredits().getCast() != null) {
                     var actors = entityMapper.convertToActor(dto.getCredits().getCast());
                     for (Actor actor : actors) {
-                        movie.addActor(actor); // actor will be persisted automatically if new
+                        movie.addActor(actor);
                     }
                 }
 
@@ -72,10 +72,14 @@ public class TaskManagerService {
 
                 // PERSIST MOVIE
                 movieDAO.create(movie, em);
-                System.out.println("Persisted movie: " + movie.getTitle());
+                persistedCount++;
             }
 
             em.getTransaction().commit();
+
+            // Print total number of persisted movies only
+            System.out.println("Total number of movies persisted: " + persistedCount);
+
         } catch (ApiException e) {
             em.getTransaction().rollback();
             throw new RuntimeException("No data from API fetched", e);
@@ -88,78 +92,100 @@ public class TaskManagerService {
     }
 
 
-    // ----------------- READ METHODS -----------------
     public void getAllMovies() {
         try (EntityManager em = emf.createEntityManager()) {
             List<Movie> allMovies = movieDAO.getAll(em);
-            allMovies.forEach(System.out::println);
+            System.out.println("\n***** ALL MOVIES *****");
+            System.out.println("Total movies: " + allMovies.size());
+            allMovies.forEach(m -> System.out.println("- " + m.getTitle()));
+
         }
     }
 
     public void getDirectorAndActors(int movieId) {
         try (EntityManager em = emf.createEntityManager()) {
-            List<Actor> actors = actorDAO.getActorsByMovieId(movieId, em);
-            Director director = directorDAO.getDirectorByMovieId(movieId, em); // you need to refactor DAO to accept em
-            List<Object> all = new ArrayList<>();
-            all.addAll(actors);
-            all.add(director);
-            all.forEach(System.out::println);
+            List<Actor> allActorsByMovieId = actorDAO.getActorsByMovieId(movieId, em);
+            Director allDirectorsByMovieId = directorDAO.getDirectorByMovieId(movieId, em);
+
+            System.out.println("\n***** DIRECTOR & ACTORS *****");
+            System.out.println("Movie ID: " + movieId);
+            System.out.println("Director: " + (allDirectorsByMovieId != null ? allDirectorsByMovieId.getName() : "None"));
+            System.out.println("Actors:");
+            allActorsByMovieId.forEach(a -> System.out.println("- " + a.getName()));
         }
     }
 
     public void getMoviesByGenre(String genreToGet) {
         try (EntityManager em = emf.createEntityManager()) {
-            List<Movie> movies = movieDAO.getMoviesByGenre(genreToGet, em);
-            movies.forEach(System.out::println);
+            List<Movie> allMoviesByGenre = movieDAO.getMoviesByGenre(genreToGet, em);
+            System.out.println("\n***** MOVIES BY GENRE *****");
+            System.out.println("Genre: " + genreToGet);
+            System.out.println("Total movies: " + allMoviesByGenre.size());
+            allMoviesByGenre.forEach(m -> System.out.println("- " + m.getTitle()));
         }
     }
 
     public void getAllMoviesByTitle(String titleToGet) {
         try (EntityManager em = emf.createEntityManager()) {
-            List<Movie> movies = movieDAO.getMoviesByTitle(titleToGet, em);
-            movies.forEach(System.out::println);
+            List<Movie> allMoviesByTitle = movieDAO.getMoviesByTitle(titleToGet, em);
+            System.out.println("\n***** MOVIES BY TITLE *****");
+            System.out.println("Search title: " + titleToGet);
+            System.out.println("Total movies found: " + allMoviesByTitle.size());
+            allMoviesByTitle.forEach(m -> System.out.println("- " + m.getTitle()));
         }
     }
 
     public void getTotalAvgRatingForAllMovies() {
         try (EntityManager em = emf.createEntityManager()) {
-            double avg = movieDAO.getTotalRatingForAllMovies(em);
-            System.out.println("Average rating: " + avg);
+            double totalAvg = movieDAO.getTotalRatingForAllMovies(em);
+            System.out.println("\n***** TOTAL AVERAGE RATING *****");
+            System.out.printf("Total average rating for all movies: %.2f%n", totalAvg);
         }
     }
 
     public void topTenHighestRatedMovies() {
         try (EntityManager em = emf.createEntityManager()) {
-            List<Movie> movies = movieDAO.getHighestRatedMovies(em);
-            movies.forEach(System.out::println);
+            List<Movie> top10 = movieDAO.getHighestRatedMovies(em);
+            System.out.println("\n***** TOP 10 HIGHEST RATED MOVIES *****");
+            top10.forEach(m -> System.out.println("- " + m.getTitle() + " (Rating: " + m.getRating() + ")"));
         }
     }
 
     public void topTenLowestRatedMovies() {
         try (EntityManager em = emf.createEntityManager()) {
-            List<Movie> movies = movieDAO.getLowestRatedMovies(em);
-            movies.forEach(System.out::println);
+            List<Movie> bottom10 = movieDAO.getLowestRatedMovies(em);
+            System.out.println("\n****** TOP 10 LOWEST RATED MOVIES *****");
+            bottom10.forEach(m -> System.out.println("- " + m.getTitle() + " (Rating: " + m.getRating() + ")"));
         }
     }
 
-    public void topTenPopularMovies() {
+    public void topTenPopularMovies () {
         try (EntityManager em = emf.createEntityManager()) {
-            List<Movie> movies = movieDAO.getMostPopularMovies(em);
-            movies.forEach(System.out::println);
+            List<Movie> popular = movieDAO.getMostPopularMovies(em);
+            System.out.println("\n***** TOP 10 MOST POPULAR MOVIES *****");
+            popular.forEach(m -> System.out.println("- " + m.getTitle() + " (Score: " + m.getPopularity() + ")"));
         }
     }
+
+    /// OPTIONAL TASKS ///
 
     public void allMoviesWithActor(String actorToGet) {
         try (EntityManager em = emf.createEntityManager()) {
             List<Movie> movies = movieDAO.getAllMoviesByActor(actorToGet, em);
-            movies.forEach(System.out::println);
+            System.out.println("\n***** MOVIES WITH ACTOR *****");
+            System.out.println("Actor: " + actorToGet);
+            System.out.println("Total movies: " + movies.size());
+            movies.forEach(m -> System.out.println("- " + m.getTitle()));
         }
     }
 
     public void allMoviesWithDirector(String directorToGet) {
         try (EntityManager em = emf.createEntityManager()) {
             List<Movie> movies = movieDAO.getAllMoviesByDirector(directorToGet, em);
-            movies.forEach(System.out::println);
+            System.out.println("\n***** MOVIES WITH DIRECTOR *****");
+            System.out.println("Director: " + directorToGet);
+            System.out.println("Total movies: " + movies.size());
+            movies.forEach(m -> System.out.println("- " + m.getTitle()));
         }
     }
 

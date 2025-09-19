@@ -10,7 +10,7 @@ import org.junit.jupiter.api.*;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-/*
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GenreDAOTest {
 
@@ -21,7 +21,7 @@ class GenreDAOTest {
     @BeforeAll
     void initOnce() {
         emf = HibernateConfig.getEntityManagerFactoryForTest();
-        genreDAO = new GenreDAO(emf);
+        genreDAO = new GenreDAO(); // assuming DAO now takes EntityManager in methods
         populator = new TestPopulator(emf);
     }
 
@@ -33,102 +33,116 @@ class GenreDAOTest {
                     "TRUNCATE TABLE movie_actor, actor, movie, director, genre RESTART IDENTITY CASCADE"
             ).executeUpdate();
             em.getTransaction().commit();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to truncate tables", e);
         }
-        // Populate all entities for tests
         populator.populateAll();
     }
 
     @AfterAll
     void tearDown() {
-        if (emf != null && emf.isOpen()) {
-            emf.close();
-        }
+        if (emf != null && emf.isOpen()) emf.close();
     }
 
     @Test
     void create() {
-        // Arrange
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+
         Genre genre = new Genre();
         genre.setName("Sci-Fi");
+        Genre created = genreDAO.create(genre, em);
 
-        // Act
-        Genre created = genreDAO.create(genre);
+        em.getTransaction().commit();
+        em.close();
 
-        // Assert
         assertNotNull(created.getId(), "Created genre should have an ID");
         assertEquals("Sci-Fi", created.getName());
     }
 
     @Test
     void getAll() {
-        // Arrange: genres already populated
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Act
-        List<Genre> genres = genreDAO.getAll();
+        List<Genre> genres = genreDAO.getAll(em);
 
-        // Assert
+        em.getTransaction().commit();
+        em.close();
+
         assertNotNull(genres);
         assertTrue(genres.size() >= 2, "There should be at least the genres from the populator");
     }
 
     @Test
     void getById() {
-        // Arrange
         Genre sample = populator.getSampleGenres().get(0);
 
-        // Act
-        Genre found = genreDAO.getById(sample.getId());
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Assert
+        Genre found = genreDAO.getById(sample.getId(), em);
+
+        em.getTransaction().commit();
+        em.close();
+
         assertNotNull(found);
         assertEquals(sample.getName(), found.getName());
     }
 
     @Test
     void update() {
-        // Arrange
         Genre genre = populator.getSampleGenres().get(0);
         genre.setName("Updated Genre");
 
-        // Act
-        Genre updated = genreDAO.update(genre);
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Assert
+        Genre updated = genreDAO.update(genre, em);
+
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+        Genre fetched = genreDAO.getById(genre.getId(), em);
+        em.getTransaction().commit();
+        em.close();
+
         assertEquals("Updated Genre", updated.getName(), "Genre name should be updated");
-
-        // Additional Assert: verify persisted in DB
-        Genre fetched = genreDAO.getById(genre.getId());
         assertEquals("Updated Genre", fetched.getName(), "Fetched genre should have updated name");
     }
 
     @Test
     void delete() {
-        // Arrange
         Genre genre = populator.getSampleGenres().get(0);
 
-        // Act
-        boolean deleted = genreDAO.delete(genre.getId());
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Assert
+        boolean deleted = genreDAO.delete(genre.getId(), em);
+
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+        Genre shouldBeNull = genreDAO.getById(genre.getId(), em);
+        em.getTransaction().commit();
+        em.close();
+
         assertTrue(deleted, "Genre should be deleted");
-        assertNull(genreDAO.getById(genre.getId()), "Deleted genre should not be found in DB");
+        assertNull(shouldBeNull, "Deleted genre should not be found in DB");
     }
 
     @Test
     void findOrCreateGenre() {
-        // Arrange
         String name = "Fantasy";
 
-        // Act
-        Genre genre1 = genreDAO.findOrCreateGenre(name);
-        Genre genre2 = genreDAO.findOrCreateGenre(name);
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Assert
+        Genre genre1 = genreDAO.findOrCreateGenre(name, em);
+        Genre genre2 = genreDAO.findOrCreateGenre(name, em);
+
+        em.getTransaction().commit();
+        em.close();
+
         assertNotNull(genre1.getId(), "Genre should have an ID");
         assertEquals(genre1.getId(), genre2.getId(), "Should return the same genre if it already exists");
     }
 }
-
- */

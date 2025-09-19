@@ -1,8 +1,6 @@
 package app.daos;
 
 import app.configs.HibernateConfig;
-import app.entities.Actor;
-import app.entities.Director;
 import app.entities.Genre;
 import app.entities.Movie;
 import app.populators.TestPopulator;
@@ -10,12 +8,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.*;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-/*
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MovieDAOTest {
 
@@ -26,7 +22,7 @@ class MovieDAOTest {
     @BeforeAll
     void initOnce() {
         emf = HibernateConfig.getEntityManagerFactoryForTest();
-        movieDAO = new MovieDAO(emf);
+        movieDAO = new MovieDAO(); // DAO methods should now accept EntityManager
         populator = new TestPopulator(emf);
     }
 
@@ -38,123 +34,140 @@ class MovieDAOTest {
                     "TRUNCATE TABLE movie_actor, actor, movie, director, genre RESTART IDENTITY CASCADE"
             ).executeUpdate();
             em.getTransaction().commit();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to truncate tables", e);
         }
-
-        // Populate all entities for tests
         populator.populateAll();
     }
 
     @AfterAll
     void tearDown() {
-        if (emf != null && emf.isOpen()) {
-            emf.close();
-        }
+        if (emf != null && emf.isOpen()) emf.close();
     }
 
     @Test
     void create() {
-        // Arrange
-        
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+
         Movie newMovie = new Movie();
         newMovie.setTitle("New Movie");
 
-        // Act
+        Movie created = movieDAO.create(newMovie, em);
 
-        Movie created = movieDAO.create(newMovie);
+        em.getTransaction().commit();
+        em.getTransaction().begin();
 
-        // Assert
+        List<Movie> all = movieDAO.getAll(em);
+
+        em.getTransaction().commit();
+        em.close();
 
         assertNotNull(created.getId());
         assertEquals("New Movie", created.getTitle());
-
-        // And the total count should be 3 (2 from populator + 1 new)
-        List<Movie> all = movieDAO.getAll();
-        assertEquals(3, all.size());
+        assertEquals(3, all.size(), "Total movies should be 3 (2 from populator + 1 new)");
     }
-
-
-
 
     @Test
     void getAll() {
-        // Arrange: movies already populated
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Act
-        List<Movie> movies = movieDAO.getAll();
+        List<Movie> movies = movieDAO.getAll(em);
 
-        // Assert
+        em.getTransaction().commit();
+        em.close();
+
         assertNotNull(movies);
         assertTrue(movies.size() >= 1, "There should be at least one movie from the populator");
     }
 
     @Test
-    void update() {
-        // Arrange
-        Movie movie = populator.getSampleMovies().get(0);
-        movie.setTitle("Updated Movie");
-
-        // Act
-        Movie updated = movieDAO.update(movie);
-
-        // Assert
-        assertEquals("Updated Movie", updated.getTitle(), "Movie title should be updated");
-
-        // Additional Assert: verify persisted in DB
-        Movie fetched = movieDAO.getById(movie.getId());
-        assertEquals("Updated Movie", fetched.getTitle(), "Fetched movie should have updated title");
-    }
-
-    @Test
     void getById() {
-        // Arrange
         Movie sample = populator.getSampleMovies().get(1);
 
-        // Act
-        Movie found = movieDAO.getById(sample.getId());
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Assert
+        Movie found = movieDAO.getById(sample.getId(), em);
+
+        em.getTransaction().commit();
+        em.close();
+
         assertNotNull(found);
         assertEquals(sample.getTitle(), found.getTitle());
     }
 
     @Test
+    void update() {
+        Movie movie = populator.getSampleMovies().get(0);
+        movie.setTitle("Updated Movie");
+
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+
+        Movie updated = movieDAO.update(movie, em);
+
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+        Movie fetched = movieDAO.getById(movie.getId(), em);
+
+        em.getTransaction().commit();
+        em.close();
+
+        assertEquals("Updated Movie", updated.getTitle());
+        assertEquals("Updated Movie", fetched.getTitle());
+    }
+
+    @Test
     void delete() {
-        // Arrange
         Movie movie = populator.getSampleMovies().get(0);
 
-        // Act
-        boolean deleted = movieDAO.delete(movie.getId());
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Assert
-        assertTrue(deleted, "Movie should be deleted");
-        assertNull(movieDAO.getById(movie.getId()), "Deleted movie should not be found in DB");
+        boolean deleted = movieDAO.delete(movie.getId(), em);
+
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+        Movie shouldBeNull = movieDAO.getById(movie.getId(), em);
+
+        em.getTransaction().commit();
+        em.close();
+
+        assertTrue(deleted);
+        assertNull(shouldBeNull);
     }
 
     @Test
     void getMoviesByGenre() {
-        // Arrange
-        var genre = populator.getSampleGenres().get(0);
+        Genre genre = populator.getSampleGenres().get(0);
 
-        // Act
-        List<Movie> movies = movieDAO.getMoviesByGenre(genre.getName());
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Assert
+        List<Movie> movies = movieDAO.getMoviesByGenre(genre.getName(), em);
+
+        em.getTransaction().commit();
+        em.close();
+
         assertNotNull(movies);
-        assertFalse(movies.isEmpty(), "There should be movies for the genre");
+        assertFalse(movies.isEmpty());
         assertTrue(movies.stream().anyMatch(m -> m.getGenres().contains(genre)));
     }
 
     @Test
     void getMoviesByTitle() {
-        // Arrange
         String title = populator.getSampleMovies().get(1).getTitle();
 
-        // Act
-        List<Movie> movies = movieDAO.getMoviesByTitle(title);
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Assert
+        List<Movie> movies = movieDAO.getMoviesByTitle(title, em);
+
+        em.getTransaction().commit();
+        em.close();
+
         assertNotNull(movies);
         assertFalse(movies.isEmpty());
         assertTrue(movies.stream().allMatch(m -> m.getTitle().contains(title)));
@@ -162,53 +175,65 @@ class MovieDAOTest {
 
     @Test
     void getTotalRatingForAllMovies() {
-        // Arrange: ratings already set by populator
-        Movie newMovie = new Movie();
-        newMovie.setRating(5.5);
-        Movie newMovie2 = new Movie();
-        newMovie2.setRating(6.5);
-        movieDAO.create(newMovie);
-        movieDAO.create(newMovie2);
+        Movie movie1 = new Movie();
+        movie1.setRating(5.5);
+        Movie movie2 = new Movie();
+        movie2.setRating(6.5);
 
-        // Act
-        Double totalRating = movieDAO.getTotalRatingForAllMovies();
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        movieDAO.create(movie1, em);
+        movieDAO.create(movie2, em);
+        em.getTransaction().commit();
 
-        // Assert
+        em.getTransaction().begin();
+        Double totalRating = movieDAO.getTotalRatingForAllMovies(em);
+        em.getTransaction().commit();
+        em.close();
+
         assertNotNull(totalRating);
-        assertTrue(totalRating >= 0, "Total rating should be non-negative");
+        assertTrue(totalRating >= 0);
     }
 
     @Test
     void getHighestRatedMovies() {
-        // Arrange
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Act
-        List<Movie> movies = movieDAO.getHighestRatedMovies();
+        List<Movie> movies = movieDAO.getHighestRatedMovies(em);
 
-        // Assert
+        em.getTransaction().commit();
+        em.close();
+
         assertNotNull(movies);
         assertFalse(movies.isEmpty());
     }
 
     @Test
     void getLowestRatedMovies() {
-        // Act
-        List<Movie> movies = movieDAO.getLowestRatedMovies();
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Assert
+        List<Movie> movies = movieDAO.getLowestRatedMovies(em);
+
+        em.getTransaction().commit();
+        em.close();
+
         assertNotNull(movies);
         assertFalse(movies.isEmpty());
     }
 
     @Test
     void getMostPopularMovies() {
-        // Act
-        List<Movie> movies = movieDAO.getMostPopularMovies();
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Assert
+        List<Movie> movies = movieDAO.getMostPopularMovies(em);
+
+        em.getTransaction().commit();
+        em.close();
+
         assertNotNull(movies);
         assertFalse(movies.isEmpty());
     }
 }
-
- */

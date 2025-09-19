@@ -47,10 +47,7 @@ public class MovieService {
 
         while (morePages) {
             try {
-                String url = DISCOVER_URL + "?api_key=" +
-                        apiKey +
-                        "&language=da-DK" +
-                        "&region=DK" +
+                String url = DISCOVER_URL + "?api_key=" + apiKey + "&language=da-DK" + "&region=DK" +
                         "&with_origin_country=DK" +
                         "&primary_release_date.gte=" +
                         fiveYearsAgo +

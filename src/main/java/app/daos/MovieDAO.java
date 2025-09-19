@@ -48,7 +48,7 @@ public class MovieDAO implements IDAO<Movie, Integer>{
     }
 
     public List<Movie> getLowestRatedMovies(EntityManager em) {
-        return em.createQuery("SELECT m FROM Movie m ORDER BY m.rating ASC", Movie.class)
+        return em.createQuery("SELECT m FROM Movie m WHERE m.rating > 0 ORDER BY m.rating ASC", Movie.class)
                 .setMaxResults(10)
                 .getResultList();
     }

@@ -4,13 +4,14 @@ import app.configs.HibernateConfig;
 import app.populators.TestPopulator;
 import app.entities.Director;
 import app.entities.Movie;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-/*
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DirectorDAOTest {
 
@@ -21,13 +22,13 @@ class DirectorDAOTest {
     @BeforeAll
     void initOnce() {
         emf = HibernateConfig.getEntityManagerFactoryForTest();
-        directorDAO = new DirectorDAO(emf);
+        directorDAO = new DirectorDAO(); // assuming DAO methods now take EntityManager
         populator = new TestPopulator(emf);
     }
 
     @BeforeEach
     void setUp() {
-        try (var em = emf.createEntityManager()) {
+        try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
             em.createNativeQuery(
                     "TRUNCATE TABLE movie_actor, actor, movie, director, genre RESTART IDENTITY CASCADE"
@@ -44,76 +45,103 @@ class DirectorDAOTest {
 
     @Test
     void create() {
-        // Arrange
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+
         Director newDirector = new Director();
         newDirector.setName("New Director");
+        Director created = directorDAO.create(newDirector, em);
 
-        // Act
-        Director created = directorDAO.create(newDirector);
+        em.getTransaction().commit();
+        em.close();
 
-        // Assert
         assertNotNull(created.getId());
         assertEquals("New Director", created.getName());
     }
 
     @Test
     void getAll() {
-        // Act
-        List<Director> directors = directorDAO.getAll();
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Assert
+        List<Director> directors = directorDAO.getAll(em);
+
+        em.getTransaction().commit();
+        em.close();
+
         assertNotNull(directors);
-        assertTrue(directors.size() >= 2);
+        assertTrue(directors.size() >= 2, "There should be at least the directors from the populator");
     }
 
     @Test
     void getById() {
-        // Arrange
         Director sample = populator.getSampleDirectors().get(0);
 
-        // Act
-        Director found = directorDAO.getById(sample.getId());
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Assert
+        Director found = directorDAO.getById(sample.getId(), em);
+
+        em.getTransaction().commit();
+        em.close();
+
         assertNotNull(found);
         assertEquals(sample.getName(), found.getName());
     }
 
     @Test
     void update() {
-        // Arrange
         Director director = populator.getSampleDirectors().get(0);
         director.setName("Updated Director");
 
-        // Act
-        Director updated = directorDAO.update(director);
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Assert
+        Director updated = directorDAO.update(director, em);
+
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+        Director fetched = directorDAO.getById(director.getId(), em);
+        em.getTransaction().commit();
+        em.close();
+
         assertEquals("Updated Director", updated.getName());
+        assertEquals("Updated Director", fetched.getName());
     }
 
     @Test
     void delete() {
-        // Arrange
         Director director = populator.getSampleDirectors().get(0);
 
-        // Act
-        boolean deleted = directorDAO.delete(director.getId());
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Assert
+        boolean deleted = directorDAO.delete(director.getId(), em);
+
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+
+        Director shouldBeNull = directorDAO.getById(director.getId(), em);
+        em.getTransaction().commit();
+        em.close();
+
         assertTrue(deleted);
-        assertNull(directorDAO.getById(director.getId()));
+        assertNull(shouldBeNull);
     }
 
     @Test
     void getDirectorByMovieId() {
-        // Arrange
         Movie movie = populator.getSampleMovies().get(0);
 
-        // Act
-        Director director = directorDAO.getDirectorByMovieId(movie.getId());
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
 
-        // Assert
+        Director director = directorDAO.getDirectorByMovieId(movie.getId(), em);
+
+        em.getTransaction().commit();
+        em.close();
+
         assertNotNull(director);
         assertEquals(movie.getDirector().getId(), director.getId());
     }
