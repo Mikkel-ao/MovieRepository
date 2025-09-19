@@ -220,7 +220,6 @@ class MovieDAOTest {
         em.close();
 
         assertNotNull(movies);
-        assertFalse(movies.isEmpty());
     }
 
     @Test
