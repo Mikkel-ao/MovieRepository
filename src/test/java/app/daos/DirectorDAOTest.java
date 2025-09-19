@@ -118,5 +118,3 @@ class DirectorDAOTest {
         assertEquals(movie.getDirector().getId(), director.getId());
     }
 }
-
- */
