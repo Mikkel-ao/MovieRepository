@@ -1,7 +1,6 @@
 package app;
 
 import app.configs.HibernateConfig;
-
 import app.services.TaskManagerService;
 import jakarta.persistence.EntityManagerFactory;
 
@@ -16,10 +15,12 @@ public class Main {
 
             //CRUD calls
             // Task 2:
-             taskManagerService.getAllMovies();
+            taskManagerService.getAllMovies();
+
 
             // Task 3:
             taskManagerService.getDirectorAndActors(10);
+
 
             // Task 4
             taskManagerService.getMoviesByGenre("Drama");
@@ -43,11 +44,11 @@ public class Main {
             taskManagerService.allMoviesWithActor("Mads Mikkelsen");
 
             taskManagerService.allMoviesWithDirector("Diba khalaj");
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
         emf.close();
-
     }
 }
+
