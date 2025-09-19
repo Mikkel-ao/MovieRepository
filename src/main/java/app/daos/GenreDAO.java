@@ -4,7 +4,7 @@ import app.entities.Genre;
 import app.entities.Movie;
 import app.exceptions.ApiException;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceException;
+
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class GenreDAO implements IDAO<Genre, Integer> {
             }
 
             return genre;
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ApiException(500, "Database error finding or creating genre: " + e.getMessage());
         }
     }
@@ -36,7 +36,7 @@ public class GenreDAO implements IDAO<Genre, Integer> {
         try {
             em.persist(genre);
             return genre;
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ApiException(500, "Database error creating genre: " + e.getMessage());
         }
     }
@@ -44,7 +44,7 @@ public class GenreDAO implements IDAO<Genre, Integer> {
     public Genre getById(Integer id, EntityManager em) {
         try {
             return em.find(Genre.class, id);
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ApiException(500, "Database error finding genre by id: " + e.getMessage());
         }
     }
@@ -53,7 +53,7 @@ public class GenreDAO implements IDAO<Genre, Integer> {
         try {
             return em.createQuery("SELECT g FROM Genre g", Genre.class)
                     .getResultList();
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ApiException(500, "Database error retrieving all genres: " + e.getMessage());
         }
     }
@@ -61,7 +61,7 @@ public class GenreDAO implements IDAO<Genre, Integer> {
     public Genre update(Genre genre, EntityManager em) {
         try {
             return em.merge(genre);
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ApiException(500, "Database error updating genre: " + e.getMessage());
         }
     }
@@ -77,7 +77,7 @@ public class GenreDAO implements IDAO<Genre, Integer> {
 
             em.remove(genre);
             return true;
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ApiException(500, "Database error deleting genre: " + e.getMessage());
         }
     }

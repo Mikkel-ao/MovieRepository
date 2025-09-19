@@ -3,7 +3,6 @@ package app.daos;
 import app.entities.Movie;
 import app.exceptions.ApiException;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceException;
 
 import java.util.List;
 
@@ -13,7 +12,7 @@ public class MovieDAO implements IDAO<Movie, Integer> {
         try {
             em.persist(movie);
             return movie;
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ApiException(500, "Database error creating movie: " + e.getMessage());
         }
     }
@@ -21,7 +20,7 @@ public class MovieDAO implements IDAO<Movie, Integer> {
     public Movie getById(Integer id, EntityManager em) {
         try {
             return em.find(Movie.class, id);
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ApiException(500, "Database error finding movie by id: " + e.getMessage());
         }
     }
@@ -30,7 +29,7 @@ public class MovieDAO implements IDAO<Movie, Integer> {
         try {
             return em.createQuery("SELECT m FROM Movie m", Movie.class)
                     .getResultList();
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ApiException(500, "Database error retrieving all movies: " + e.getMessage());
         }
     }
@@ -38,7 +37,7 @@ public class MovieDAO implements IDAO<Movie, Integer> {
     public Movie update(Movie movie, EntityManager em) {
         try {
             return em.merge(movie);
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ApiException(500, "Database error updating movie: " + e.getMessage());
         }
     }
@@ -50,19 +49,20 @@ public class MovieDAO implements IDAO<Movie, Integer> {
 
             em.remove(movie);
             return true;
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ApiException(500, "Database error deleting movie: " + e.getMessage());
         }
     }
 
     public double getTotalRatingForAllMovies(EntityManager em) {
         try {
-            return em.createQuery(
+            Double avgRating = em.createQuery(
                             "SELECT AVG(m.rating) FROM Movie m WHERE m.rating > 0",
                             Double.class)
                     .getSingleResult();
-        } catch (PersistenceException e) {
-            throw new ApiException(500, "Database error calculating average movie rating: " + e.getMessage());
+            return avgRating != null ? avgRating : 0.0;
+        } catch (Exception e) {
+            throw new ApiException(400, "Invalid query for average movie rating: " + e.getMessage());
         }
     }
 
@@ -73,8 +73,8 @@ public class MovieDAO implements IDAO<Movie, Integer> {
                             Movie.class)
                     .setMaxResults(10)
                     .getResultList();
-        } catch (PersistenceException e) {
-            throw new ApiException(500, "Database error retrieving top 10 highest rated movies: " + e.getMessage());
+        } catch (Exception e) {
+            throw new ApiException(400, "Invalid query for top 10 highest rated movies: " + e.getMessage());
         }
     }
 
@@ -85,8 +85,8 @@ public class MovieDAO implements IDAO<Movie, Integer> {
                             Movie.class)
                     .setMaxResults(10)
                     .getResultList();
-        } catch (PersistenceException e) {
-            throw new ApiException(500, "Database error retrieving top 10 lowest rated movies: " + e.getMessage());
+        } catch (Exception e) {
+            throw new ApiException(400, "Invalid query for top 10 lowest rated movies: " + e.getMessage());
         }
     }
 
@@ -97,8 +97,8 @@ public class MovieDAO implements IDAO<Movie, Integer> {
                             Movie.class)
                     .setMaxResults(10)
                     .getResultList();
-        } catch (PersistenceException e) {
-            throw new ApiException(500, "Database error retrieving top 10 most popular movies: " + e.getMessage());
+        } catch (Exception e) {
+            throw new ApiException(400, "Invalid query for top 10 most popular movies: " + e.getMessage());
         }
     }
 
@@ -109,8 +109,8 @@ public class MovieDAO implements IDAO<Movie, Integer> {
                             Movie.class)
                     .setParameter("actorName", "%" + actorName.toLowerCase() + "%")
                     .getResultList();
-        } catch (PersistenceException e) {
-            throw new ApiException(500, "Database error retrieving movies for actor: " + e.getMessage());
+        } catch (Exception e) {
+            throw new ApiException(400, "Invalid query or parameter for actor: " + e.getMessage());
         }
     }
 
@@ -121,8 +121,8 @@ public class MovieDAO implements IDAO<Movie, Integer> {
                             Movie.class)
                     .setParameter("directorName", "%" + directorName.toLowerCase() + "%")
                     .getResultList();
-        } catch (PersistenceException e) {
-            throw new ApiException(500, "Database error retrieving movies for director: " + e.getMessage());
+        } catch (Exception e) {
+            throw new ApiException(400, "Invalid query or parameter for director: " + e.getMessage());
         }
     }
 
@@ -133,8 +133,8 @@ public class MovieDAO implements IDAO<Movie, Integer> {
                             Movie.class)
                     .setParameter("genreName", genreName)
                     .getResultList();
-        } catch (PersistenceException e) {
-            throw new ApiException(500, "Database error retrieving movies for genre: " + e.getMessage());
+        } catch (Exception e) {
+            throw new ApiException(400, "Invalid query or parameter for genre: " + e.getMessage());
         }
     }
 
@@ -145,8 +145,8 @@ public class MovieDAO implements IDAO<Movie, Integer> {
                             Movie.class)
                     .setParameter("movieTitle", "%" + movieTitle.toLowerCase() + "%")
                     .getResultList();
-        } catch (PersistenceException e) {
-            throw new ApiException(500, "Database error retrieving movies by title: " + e.getMessage());
+        } catch (Exception e) {
+            throw new ApiException(400, "Invalid query or parameter for title: " + e.getMessage());
         }
     }
 }

@@ -27,7 +27,7 @@ public class DirectorDAO implements IDAO<Director, Integer> {
             }
 
             return director;
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ApiException(500, "Database error finding or creating director: " + e.getMessage());
         }
     }
@@ -36,7 +36,7 @@ public class DirectorDAO implements IDAO<Director, Integer> {
         try {
             em.persist(director);
             return director;
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ApiException(500, "Database error creating director: " + e.getMessage());
         }
     }
@@ -44,7 +44,7 @@ public class DirectorDAO implements IDAO<Director, Integer> {
     public Director getById(Integer id, EntityManager em) {
         try {
             return em.find(Director.class, id);
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ApiException(500, "Database error finding director by id: " + e.getMessage());
         }
     }
@@ -61,7 +61,7 @@ public class DirectorDAO implements IDAO<Director, Integer> {
     public Director update(Director director, EntityManager em) {
         try {
             return em.merge(director);
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ApiException(500, "Database error updating director: " + e.getMessage());
         }
     }
@@ -77,7 +77,7 @@ public class DirectorDAO implements IDAO<Director, Integer> {
 
             em.remove(director);
             return true;
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ApiException(500, "Database error deleting director: " + e.getMessage());
         }
     }
@@ -89,7 +89,7 @@ public class DirectorDAO implements IDAO<Director, Integer> {
                             Director.class)
                     .setParameter("movieId", movieId)
                     .getSingleResult();
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             throw new ApiException(500, "Database error retrieving director by movie id: " + e.getMessage());
         }
     }
