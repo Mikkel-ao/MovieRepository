@@ -20,7 +20,6 @@ import java.util.List;
 public class TaskManagerService {
     private final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
-
     MovieDAO movieDAO = new MovieDAO(emf);
     DirectorDAO directorDAO = new DirectorDAO(emf);
     ActorDAO actorDAO = new ActorDAO(emf);
@@ -29,10 +28,10 @@ public class TaskManagerService {
     MovieService movieService = new MovieService();
     EntityMapper entityMapper = new EntityMapper();
 
-
     public void fetchAllAndStoreMovies() {
         try {
             List<MovieDetailsDTO> movieDetails = movieService.getDanishMoviesLast5Years();
+            int persistedCount = 0;
 
             for (MovieDetailsDTO dto : movieDetails) {
                 Movie movie = entityMapper.convertToMovie(List.of(dto)).get(0);
@@ -60,70 +59,92 @@ public class TaskManagerService {
                         movie.addGenre(genre);
                     }
                 }
+
                 movieDAO.create(movie);
-                System.out.println("Persisted movie: " + movie.getTitle());
+                persistedCount++;
             }
+
+            System.out.println("\n***** MOVIE IMPORT *****");
+            System.out.println("Total number of movies persisted: " + persistedCount);
+
         } catch (ApiException apiException) {
             throw new RuntimeException("No data from API fetched", apiException);
         }
     }
 
-
     public void getAllMovies() {
         List<Movie> allMovies = movieDAO.getAll();
-        allMovies.forEach(System.out::println);
+        System.out.println("\n***** ALL MOVIES *****");
+        System.out.println("Total movies: " + allMovies.size());
+        allMovies.forEach(m -> System.out.println("- " + m.getTitle()));
     }
 
     public void getDirectorAndActors(int movieId) {
         List<Actor> allActorsByMovieId = actorDAO.getActorsByMovieId(movieId);
         Director allDirectorsByMovieId = directorDAO.getDirectorByMovieId(movieId);
-        List<Object> allDirectorsAndActors = new ArrayList<>();
-        allDirectorsAndActors.addAll(allActorsByMovieId);
-        allDirectorsAndActors.add(allDirectorsByMovieId);
-        allDirectorsAndActors.forEach(System.out::println);
+
+        System.out.println("\n***** DIRECTOR & ACTORS *****");
+        System.out.println("Movie ID: " + movieId);
+        System.out.println("Director: " + (allDirectorsByMovieId != null ? allDirectorsByMovieId.getName() : "None"));
+        System.out.println("Actors:");
+        allActorsByMovieId.forEach(a -> System.out.println("- " + a.getName()));
     }
 
     public void getMoviesByGenre(String genreToGet) {
         List<Movie> allMoviesByGenre = movieDAO.getMoviesByGenre(genreToGet);
-        allMoviesByGenre.forEach(System.out::println);
+        System.out.println("\n***** MOVIES BY GENRE *****");
+        System.out.println("Genre: " + genreToGet);
+        System.out.println("Total movies: " + allMoviesByGenre.size());
+        allMoviesByGenre.forEach(m -> System.out.println("- " + m.getTitle()));
     }
 
     public void getAllMoviesByTitle(String titleToGet) {
         List<Movie> allMoviesByTitle = movieDAO.getMoviesByTitle(titleToGet);
-        allMoviesByTitle.forEach(System.out::println);
+        System.out.println("\n***** MOVIES BY TITLE *****");
+        System.out.println("Search title: " + titleToGet);
+        System.out.println("Total movies found: " + allMoviesByTitle.size());
+        allMoviesByTitle.forEach(m -> System.out.println("- " + m.getTitle()));
     }
 
     public void getTotalAvgRatingForAllMovies() {
-        double getTotalAverageForAllMovies = movieDAO.getTotalRatingForAllMovies();
-        System.out.println("getTotalAverageForAllMovies: " + getTotalAverageForAllMovies);
+        double totalAvg = movieDAO.getTotalRatingForAllMovies();
+        System.out.println("\n*****TOTAL AVERAGE RATING *****");
+        System.out.printf("Total average rating for all movies: %.2f%n", totalAvg);
     }
 
     public void topTenHighestRatedMovies() {
-        List<Movie> top10HighestRatedMovies = movieDAO.getHighestRatedMovies();
-        top10HighestRatedMovies.forEach(System.out::println);
+        List<Movie> top10 = movieDAO.getHighestRatedMovies();
+        System.out.println("\n*****TOP 10 HIGHEST RATED MOVIES *****");
+        top10.forEach(m -> System.out.println("- " + m.getTitle() + " (Rating: " + m.getRating() + ")"));
     }
 
     public void topTenLowestRatedMovies() {
-        List<Movie> top10LowestRatedMovies = movieDAO.getLowestRatedMovies();
-        top10LowestRatedMovies.forEach(System.out::println);
+        List<Movie> bottom10 = movieDAO.getLowestRatedMovies();
+        System.out.println("\n****** TOP 10 LOWEST RATED MOVIES *****");
+        bottom10.forEach(m -> System.out.println("- " + m.getTitle() + " (Rating: " + m.getRating() + ")"));
     }
 
     public void topTenPopularMovies() {
-        List<Movie> mostPopularMovies = movieDAO.getMostPopularMovies();
-        mostPopularMovies.forEach(System.out::println);
+        List<Movie> popular = movieDAO.getMostPopularMovies();
+        System.out.println("\n***** TOP 10 MOST POPULAR MOVIES *****");
+        popular.forEach(m -> System.out.println("- " + m.getTitle() + " (Score: " + m.getRating() + ")"));
     }
 
-
-    ///  OPTIONAL TASK /////
+    /// OPTIONAL TASKS ///
 
     public void allMoviesWithActor(String actorToGet) {
-        List<Movie> allMoviesWithActor = movieDAO.getAllMoviesByActor(actorToGet);
-        allMoviesWithActor.forEach(System.out::println);
+        List<Movie> movies = movieDAO.getAllMoviesByActor(actorToGet);
+        System.out.println("\n***** MOVIES WITH ACTOR *****");
+        System.out.println("Actor: " + actorToGet);
+        System.out.println("Total movies: " + movies.size());
+        movies.forEach(m -> System.out.println("- " + m.getTitle()));
     }
 
     public void allMoviesWithDirector(String directorToGet) {
-        List<Movie> allMoviesWithDirector = movieDAO.getAllMoviesByDirector(directorToGet);
-        allMoviesWithDirector.forEach(System.out::println);
+        List<Movie> movies = movieDAO.getAllMoviesByDirector(directorToGet);
+        System.out.println("\n***** MOVIES WITH DIRECTOR *****");
+        System.out.println("Director: " + directorToGet);
+        System.out.println("Total movies: " + movies.size());
+        movies.forEach(m -> System.out.println("- " + m.getTitle()));
     }
-
 }

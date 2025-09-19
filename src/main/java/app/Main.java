@@ -12,17 +12,15 @@ public class Main {
         TaskManagerService taskManagerService = new TaskManagerService();
         taskManagerService.fetchAllAndStoreMovies();
 
-        try {
-
             //CRUD calls
             // Task 2:
-            taskManagerService.getAllMovies();
+            // taskManagerService.getAllMovies();
 
             // Task 3:
-            taskManagerService.getDirectorAndActors(7);
+            taskManagerService.getDirectorAndActors(8);
 
             // Task 4
-            taskManagerService.getMoviesByGenre("Drama");
+            taskManagerService.getMoviesByGenre("Western");
 
             // Task 5
             taskManagerService.getAllMoviesByTitle("100");
@@ -40,12 +38,10 @@ public class Main {
             taskManagerService.topTenPopularMovies();
 
             ///// Optional CRUDS ///
-            // taskManagerService.allMoviesWithActor("Mads Mikkelsen");
+            taskManagerService.allMoviesWithActor("Mads Mikkelsen");
 
-            // taskManagerService.allMoviesWithDirector("Maya");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+            taskManagerService.allMoviesWithDirector("Bille August");
+
 
         emf.close();
 
