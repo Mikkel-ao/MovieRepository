@@ -16,7 +16,7 @@ public class Main {
 
             //CRUD calls
             // Task 2:
-             taskManagerService.getAllMovies();
+            //taskManagerService.getAllMovies();
 
             // Task 3:
             //taskManagerService.getDirectorAndActors(10);
@@ -25,7 +25,7 @@ public class Main {
             //taskManagerService.getMoviesByGenre("Drama");
 
             // Task 5
-            //taskManagerService.getAllMoviesByTitle("100");
+            //taskManagerService.getAllMoviesByTitle("New Title");
 
             // Task 6:
             //taskManagerService.getTotalAvgRatingForAllMovies();
@@ -38,6 +38,8 @@ public class Main {
 
             // Task 7.2
             //taskManagerService.topTenPopularMovies();
+
+            taskManagerService.updateMovieTitle(2, "New Title: The Sequel");
 
             ///// Optional CRUDS ///
             //taskManagerService.allMoviesWithActor("Mads Mikkelsen");

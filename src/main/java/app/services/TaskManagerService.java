@@ -87,6 +87,19 @@ public class TaskManagerService {
         }
     }
 
+    public void updateMovieTitle(int movieId, String newMovieTitle) {
+        try (EntityManager em = emf.createEntityManager()) { //Opens a new EntityManager transaction/session (meaning everything will be managed as long as it is open)
+            em.getTransaction().begin();
+
+            Movie movie = em.find(Movie.class, movieId); //Returns a managed entity (it is tracked)
+            if (movie != null) {
+                movie.setTitle(newMovieTitle);
+            }
+
+            em.getTransaction().commit(); // <-- important!
+            System.out.println("Updated movie: " + movie.getTitle());
+        }
+    }
 
     // ----------------- READ METHODS -----------------
     public void getAllMovies() {
@@ -99,7 +112,7 @@ public class TaskManagerService {
     public void getDirectorAndActors(int movieId) {
         try (EntityManager em = emf.createEntityManager()) {
             List<Actor> actors = actorDAO.getActorsByMovieId(movieId, em);
-            Director director = directorDAO.getDirectorByMovieId(movieId, em); // you need to refactor DAO to accept em
+            Director director = directorDAO.getDirectorByMovieId(movieId, em);
             List<Object> all = new ArrayList<>();
             all.addAll(actors);
             all.add(director);

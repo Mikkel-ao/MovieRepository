@@ -24,12 +24,12 @@ public class Movie {
     private Double rating;
     private Double popularity;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.PERSIST,fetch = FetchType.EAGER)
     @JoinColumn(name = "director_id")
     @ToString.Exclude
     private Director director;
 
-    @ManyToMany(cascade = CascadeType.ALL,  fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.PERSIST,fetch = FetchType.EAGER)
     @JoinTable(
             name = "movie_actor",
             joinColumns = @JoinColumn(name = "movie_id"),
